@@ -14,8 +14,14 @@ def search():
         "Accept-Language": "fa-IR,fa;q=0.9",
         "Referer": "https://torob.com/",
     }
-    r = httpx.get(url, headers=H, timeout=20)
-    return jsonify(r.json())
+    try:
+        r = httpx.get(url, headers=H, timeout=20)
+        if "json" in r.headers.get("content-type", ""):
+            return jsonify(r.json())
+        else:
+            return jsonify({"error": "not_json", "status": r.status_code, "body": r.text[:200]})
+    except Exception as e:
+        return jsonify({"error": str(e)})
 
 if __name__ == "__main__":
     app.run()
